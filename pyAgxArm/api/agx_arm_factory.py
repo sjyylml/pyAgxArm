@@ -22,7 +22,7 @@ def extract_kwargs(func, source: dict) -> dict:
 
 def create_agx_arm_config(
         robot: Literal["nero", "piper", "piper_h", "piper_l", "piper_x"],
-        comm: Literal["can"],
+        comm: Literal["can"] = "can",
         firmeware_version: str = "default",
         **kwargs):
     config = {
