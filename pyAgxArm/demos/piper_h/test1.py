@@ -266,3 +266,17 @@ while True:
 # print(robot.set_flange_vel_acc_limits(0.5, 0.13, 0.8, 0.2))
 # print(robot.set_flange_vel_acc_limits_to_default())
 # print(robot.get_flange_vel_acc_limits())
+
+
+# -------------------------- TCP ----------------------------
+
+# robot.set_tcp_offset([0, 0, 0.15, 0, 0, 0])
+
+# time.sleep(0.1)
+# print(robot.get_tcp_pose())
+
+# pose = robot.get_tcp2flange_pose([0.3, 0.0, 0.3, 0.0, 1.570796326794896619, 0.0])
+# print(pose)
+# robot.move_p(pose)
+# time.sleep(2)
+# robot.move_l([0.1, 0.0, 0.3, 0.0, 1.570796326794896619, 0.0])

@@ -5,6 +5,7 @@ from .parser import Parser
 from ...core.arm_driver_abstract import ArmDriverAbstract
 from ....msgs.core import MessageAbstract
 from ......utiles.numeric_codec import RAD2DEG
+from ......utiles.tf import validate_pose6
 from ....msgs.nero.default import (
     ArmMsgModeCtrl,
     ArmMsgFeedbackJointStates,
@@ -90,14 +91,7 @@ class Driver(ArmDriverAbstract):
 
     def _deal_move_p_msgs(self, pose: List[float]):
         """Get pose control messages."""
-        if not isinstance(pose, list):
-            raise ValueError("Pose should be a list")
-
-        if len(pose) != 6:
-            raise ValueError(
-                "Pose should be [x, y, z, roll, pitch, yaw], "
-                "length should be 6"
-            )
+        pose = validate_pose6(pose, name="flange_pose", validate_angle_limits=True)
 
         # Radians to degrees conversion
         rpy = [i * RAD2DEG for i in pose[3:]]
@@ -691,11 +685,16 @@ class Driver(ArmDriverAbstract):
             (Numerical precision: 1e-6 m)
         - `roll, pitch, yaw`: Rotation angles around X, Y, Z axes respectively
             in radians. (Numerical precision: 1.74532925199e-5 rad)
+          - `roll`, `yaw` must be within `[-pi, pi]`
+          - `pitch` must be within `[-pi/2, pi/2]`
 
         Raises
         ------
         ValueError
             If pose is not a list or has incorrect length (not 6 elements).
+
+            If `roll`, `yaw` is outside `[-pi, pi]` or `pitch` is outside
+            `[-pi/2, pi/2]`.
         """
         # Prepare control messages
         msgs = self._deal_move_p_msgs(pose)

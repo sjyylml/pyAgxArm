@@ -1,12 +1,19 @@
 import threading
-from typing import Optional, TYPE_CHECKING, overload, List
+from typing import Optional, TYPE_CHECKING, overload, List, Sequence
 
 from typing_extensions import Literal, Final
 from .arm_driver_interface import ArmDriverInterface
 from .driver_context import DriverContext
-from ...msgs.core import AttributeBase
+from ...msgs.core import AttributeBase, MessageAbstract
 from .protocol_parser_interface import ProtocolParserInterface
 from ..core.arm_driver_context import ArmDriverContext
+from .....utiles.tf import (
+    validate_pose6,
+    pose6_to_T,
+    matmul4,
+    inv_T,
+    T_to_pose6
+)
 
 if TYPE_CHECKING:
     from ..effector.agx_gripper import AgxGripperDriverDefault
@@ -45,6 +52,7 @@ class ArmDriverAbstract(ArmDriverInterface):
         self._effector = None
         self._parser = self._Parser(self._ctx.fps)
         self._arm_ctx = ArmDriverContext(config, self._ctx, self._parser)
+        self._tcp_offset_pose: List[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     def _send_msg(self, msg: AttributeBase) -> None:
         """Send one control message.
@@ -207,3 +215,66 @@ class ArmDriverAbstract(ArmDriverInterface):
 
     def electronic_emergency_stop(self):
         raise NotImplementedError
+
+    # -------------------------- TCP --------------------------
+
+    def set_tcp_offset(self, pose: Sequence[float]):
+        """Set TCP offset pose in the flange frame.
+
+        Parameters
+        ----------
+        `pose`: list[float]
+        - `[x, y, z, roll, pitch, yaw]` in flange frame.
+        - `x, y, z`: meters.
+        - `roll, pitch, yaw`: radians (Euler angles around X/Y/Z).
+          - `roll`, `yaw` must be within [-pi, pi]
+          - `pitch` must be within [-pi/2, pi/2]
+        """
+        self._tcp_offset_pose = validate_pose6(
+            pose, name="tcp_pose", validate_angle_limits=True
+        )
+
+    def get_tcp_pose(self):
+        """Get TCP pose by applying the configured TCP offset to the flange pose.
+
+        Returns
+        -------
+        MessageAbstract[list[float]] | None
+            `msg`: `[x, y, z, roll, pitch, yaw]` (TCP pose in base frame)
+        """
+        flange = self.get_flange_pose()
+        if flange is None:
+            return None
+        flange_pose = validate_pose6(
+            flange.msg, name="flange_pose", validate_angle_limits=False
+        )
+        T_w_f = pose6_to_T(flange_pose)
+        T_f_t = pose6_to_T(self._tcp_offset_pose)
+        T_w_t = matmul4(T_w_f, T_f_t)
+        tcp_pose = T_to_pose6(T_w_t)
+        ret = MessageAbstract(
+            msg_type="tcp_pose",
+            msg=tcp_pose,
+            timestamp=flange.timestamp,
+            hz=flange.hz,
+        )
+        return ret
+
+    def get_tcp2flange_pose(self, tcp_pose: Sequence[float]):
+        """Convert a target TCP pose (base frame) to the corresponding flange pose.
+
+        Notes
+        -----
+        If you call:
+            flange_pose = robot.get_tcp2flange_pose(target_tcp_pose)
+            robot.move_p(flange_pose)
+        the TCP will move to `target_tcp_pose` (subject to kinematics and controller).
+        """
+        tcp_pose = validate_pose6(
+            tcp_pose, name="tcp_pose", validate_angle_limits=True
+        )
+        T_w_t = pose6_to_T(tcp_pose)
+        T_f_t = pose6_to_T(self._tcp_offset_pose)
+        T_t_f = inv_T(T_f_t)
+        T_w_f = matmul4(T_w_t, T_t_f)
+        return T_to_pose6(T_w_f)

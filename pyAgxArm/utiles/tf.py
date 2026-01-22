@@ -1,5 +1,5 @@
 import math
-from typing import Tuple
+from typing import Tuple, List, Sequence
 
 # Define Euler angle order encoding table
 _AXES2TUPLE = {
@@ -240,4 +240,130 @@ def quat_to_euler(q: list, epsilon_deg: float = 0.01) -> Tuple[float, float, flo
         yaw = -roll_yaw_limit
     
     return roll, pitch, yaw
+
+
+# -------------------------- pose6 / rigid transform helpers --------------------------
+# Used by TCP-related APIs (set_tcp_offset/get_tcp_pose/get_tcp2flange_pose).
+
+
+def validate_pose6(
+    pose: Sequence[float],
+    *,
+    name: str = "pose",
+    validate_angle_limits: bool = True,
+) -> List[float]:
+    """Validate a pose6 list: [x, y, z, roll, pitch, yaw].
+
+    - `x/y/z`: meters
+    - `roll/pitch/yaw`: radians
+    - Angle limits (if enabled):
+      - roll, yaw in `[-pi, pi]`
+      - pitch in `[-pi/2, pi/2]`
+    """
+    if not isinstance(pose, (list, tuple)):
+        raise TypeError(f"{name} must be a list[float] with length 6")
+    if len(pose) != 6:
+        raise ValueError(f"{name} must have length 6")
+
+    out: List[float] = []
+    for i, v in enumerate(pose):
+        try:
+            fv = float(v)
+        except Exception as e:
+            raise TypeError(f"{name}[{i}] must be a float") from e
+        if not math.isfinite(fv):
+            raise ValueError(f"{name}[{i}] must be a finite number")
+        out.append(fv)
+
+    if validate_angle_limits:
+        roll, pitch, yaw = out[3], out[4], out[5]
+        if abs(roll) > math.pi:
+            raise ValueError("roll must be within [-pi, pi] (unit: rad)")
+        if abs(yaw) > math.pi:
+            raise ValueError("yaw must be within [-pi, pi] (unit: rad)")
+        if abs(pitch) > (math.pi / 2.0):
+            raise ValueError("pitch must be within [-pi/2, pi/2] (unit: rad)")
+
+    return out
+
+
+def rpy_to_rot(roll: float, pitch: float, yaw: float) -> List[List[float]]:
+    """Rotation matrix for roll-pitch-yaw (ZYX order): R = Rz(yaw) * Ry(pitch) * Rx(roll)."""
+    cr = math.cos(roll)
+    sr = math.sin(roll)
+    cp = math.cos(pitch)
+    sp = math.sin(pitch)
+    cy = math.cos(yaw)
+    sy = math.sin(yaw)
+    return [
+        [cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr],
+        [sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr],
+        [-sp, cp * sr, cp * cr],
+    ]
+
+
+def rot_to_rpy(R: List[List[float]]) -> List[float]:
+    """Inverse of rpy_to_rot for ZYX order. Returns [roll, pitch, yaw]."""
+    r20 = R[2][0]
+    pitch = math.asin(max(-1.0, min(1.0, -r20)))
+    cp = math.cos(pitch)
+    eps = 1e-9
+    if abs(cp) < eps:
+        # gimbal lock
+        roll = 0.0
+        yaw = math.atan2(-R[0][1], R[1][1])
+    else:
+        roll = math.atan2(R[2][1], R[2][2])
+        yaw = math.atan2(R[1][0], R[0][0])
+    return [roll, pitch, yaw]
+
+
+def pose6_to_T(pose: Sequence[float]) -> List[List[float]]:
+    p = validate_pose6(pose, validate_angle_limits=False)
+    x, y, z, roll, pitch, yaw = p
+    R = rpy_to_rot(roll, pitch, yaw)
+    return [
+        [R[0][0], R[0][1], R[0][2], x],
+        [R[1][0], R[1][1], R[1][2], y],
+        [R[2][0], R[2][1], R[2][2], z],
+        [0.0, 0.0, 0.0, 1.0],
+    ]
+
+
+def matmul4(A: List[List[float]], B: List[List[float]]) -> List[List[float]]:
+    out = [[0.0] * 4 for _ in range(4)]
+    for i in range(4):
+        for j in range(4):
+            out[i][j] = (
+                A[i][0] * B[0][j]
+                + A[i][1] * B[1][j]
+                + A[i][2] * B[2][j]
+                + A[i][3] * B[3][j]
+            )
+    return out
+
+
+def inv_T(T: List[List[float]]) -> List[List[float]]:
+    """Inverse of a 4x4 homogeneous transform."""
+    R = [[T[i][j] for j in range(3)] for i in range(3)]
+    t = [T[0][3], T[1][3], T[2][3]]
+    Rt = [[R[j][i] for j in range(3)] for i in range(3)]
+    tinv = [
+        -(Rt[0][0] * t[0] + Rt[0][1] * t[1] + Rt[0][2] * t[2]),
+        -(Rt[1][0] * t[0] + Rt[1][1] * t[1] + Rt[1][2] * t[2]),
+        -(Rt[2][0] * t[0] + Rt[2][1] * t[1] + Rt[2][2] * t[2]),
+    ]
+    return [
+        [Rt[0][0], Rt[0][1], Rt[0][2], tinv[0]],
+        [Rt[1][0], Rt[1][1], Rt[1][2], tinv[1]],
+        [Rt[2][0], Rt[2][1], Rt[2][2], tinv[2]],
+        [0.0, 0.0, 0.0, 1.0],
+    ]
+
+
+def T_to_pose6(T: List[List[float]]) -> List[float]:
+    x, y, z = T[0][3], T[1][3], T[2][3]
+    R = [[T[i][j] for j in range(3)] for i in range(3)]
+    roll, pitch, yaw = rot_to_rpy(R)
+    return [x, y, z, roll, pitch, yaw]
     

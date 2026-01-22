@@ -576,6 +576,125 @@ robot.connect()
 robot.set_motion_mode(robot.MOTION_MODE.P)  # 或 robot.set_motion_mode("p")
 ```
 
+## TCP相关
+
+### 设置TCP偏移 set_tcp_offset()
+
+- 功能说明:
+
+设置 TCP（工具中心点）相对于法兰（`flange`）的偏移位姿（在 **法兰坐标系** 下）。
+
+默认无偏移：`[0, 0, 0, 0, 0, 0]`。该偏移值仅保存在 SDK/Driver 实例内，不会下发到控制器。
+
+- 定义:
+
+```python
+set_tcp_offset(self, pose: list[float]) -> None
+```
+
+- 参数说明:
+
+|名称|类型|说明|
+|---|---|---|
+|pose|list[float]|TCP 在法兰坐标系下的位姿偏移 `[x, y, z, roll, pitch, yaw]`：`x, y, z` 为位置坐标（m）；`roll, pitch, yaw` 为姿态欧拉角（rad，分别绕 X/Y/Z 轴旋转）。范围：`roll/yaw` 为 `[-pi, pi]`，`pitch` 为 `[-pi/2, pi/2]`|
+
+- 使用示例:
+
+```python
+from pyAgxArm import create_agx_arm_config, AgxArmFactory
+
+cfg = create_agx_arm_config(robot="nero", channel="can0")
+robot = AgxArmFactory.create_arm(cfg)
+robot.connect()
+
+# 示例：TCP 相对法兰在 Z 方向偏移 10cm
+robot.set_tcp_offset([0.0, 0.0, 0.10, 0.0, 0.0, 0.0])
+```
+
+### 获取TCP位姿 get_tcp_pose()
+
+- 功能说明:
+
+获取 TCP 位姿（工具中心点位姿）。该接口会先读取法兰位姿，然后根据 `set_tcp_offset()` 保存的偏移值做刚体变换得到 TCP 位姿。
+
+若未设置偏移，则 TCP 位姿与法兰位姿相同。
+
+- 定义:
+
+```python
+get_tcp_pose(self) -> MessageAbstract[list[float]] | None
+```
+
+- 返回值:
+
+类型：`MessageAbstract[list[float]] | None`
+
+`MessageAbstract[list[float]].msg` 为长度 6 的 `list[float]`：`[x, y, z, roll, pitch, yaw]`（m / rad）。
+
+- 使用示例:
+
+```python
+import time
+from pyAgxArm import create_agx_arm_config, AgxArmFactory
+
+cfg = create_agx_arm_config(robot="nero", channel="can0")
+robot = AgxArmFactory.create_arm(cfg)
+robot.connect()
+
+robot.set_tcp_offset([0.0, 0.0, 0.10, 0.0, 0.0, 0.0])
+
+while True:
+    tcp = robot.get_tcp_pose()
+    if tcp is not None:
+        print(tcp.msg)
+        print(tcp.hz, tcp.timestamp)
+    time.sleep(0.02)
+```
+
+### 目标TCP位姿转法兰位姿 get_tcp2flange_pose()
+
+- 功能说明:
+
+输入目标 TCP 位姿（基座/世界坐标系下），根据 `set_tcp_offset()` 保存的偏移值反算出对应的目标法兰位姿。
+
+将返回的目标法兰位姿传给 `move_p()`，即可实现 **TCP 运动到目标 TCP 位姿**（取决于运动学与控制器实际执行结果）。
+
+- 定义:
+
+```python
+get_tcp2flange_pose(self, tcp_pose: list[float]) -> list[float]
+```
+
+- 参数说明:
+
+|名称|类型|说明|
+|---|---|---|
+|tcp_pose|list[float]|目标 TCP 位姿 `[x, y, z, roll, pitch, yaw]`（m / rad）。范围：`roll/yaw` 为 `[-pi, pi]`，`pitch` 为 `[-pi/2, pi/2]`|
+
+- 返回值:
+
+类型：`list[float]`
+
+返回目标法兰位姿 `[x, y, z, roll, pitch, yaw]`（m / rad），可直接用于 `move_p()`。
+
+- 使用示例:
+
+```python
+from pyAgxArm import create_agx_arm_config, AgxArmFactory
+
+cfg = create_agx_arm_config(robot="nero", channel="can0")
+robot = AgxArmFactory.create_arm(cfg)
+robot.connect()
+
+robot.set_tcp_offset([0.0, 0.0, 0.10, 0.0, 0.0, 0.0])
+
+target_tcp_pose = [0.10, 0.0, 0.30, 0.0, 1.5708, 0.0]
+target_flange_pose = robot.get_tcp2flange_pose(target_tcp_pose)
+print("target_flange_pose =", target_flange_pose)
+
+# robot.move_p(target_flange_pose)  # 注意：会触发运动
+```
+
 ## 机械臂控制相关
 
 ### 使能机械臂 enable()
