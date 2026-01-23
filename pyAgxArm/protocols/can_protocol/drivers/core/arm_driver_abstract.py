@@ -226,12 +226,12 @@ class ArmDriverAbstract(ArmDriverInterface):
         `pose`: list[float]
         - `[x, y, z, roll, pitch, yaw]` in flange frame.
         - `x, y, z`: meters.
-        - `roll, pitch, yaw`: radians (Euler angles around X/Y/Z).
-          - `roll`, `yaw` must be within [-pi, pi]
-          - `pitch` must be within [-pi/2, pi/2]
+        - `roll, pitch, yaw`: radians (Euler angles around `X/Y/Z`).
+          - `roll`, `yaw` must be within `[-pi, pi]`
+          - `pitch` must be within `[-pi/2, pi/2]`
         """
         self._tcp_offset_pose = validate_pose6(
-            pose, name="tcp_pose", validate_angle_limits=True
+            pose, name="set_tcp_offset", validate_angle_limits=True
         )
 
     def get_tcp_pose(self):
@@ -242,7 +242,7 @@ class ArmDriverAbstract(ArmDriverInterface):
         MessageAbstract[list[float]] | None
             `msg`: `[x, y, z, roll, pitch, yaw]` (TCP pose in base frame)
         """
-        flange = self.get_flange_pose()
+        flange: Optional[MessageAbstract] = self.get_flange_pose()
         if flange is None:
             return None
         flange_pose = validate_pose6(
@@ -266,12 +266,14 @@ class ArmDriverAbstract(ArmDriverInterface):
         Notes
         -----
         If you call:
-            flange_pose = robot.get_tcp2flange_pose(target_tcp_pose)
-            robot.move_p(flange_pose)
+            `flange_pose = robot.get_tcp2flange_pose(target_tcp_pose)`
+
+            `robot.move_p(flange_pose)`
+
         the TCP will move to `target_tcp_pose` (subject to kinematics and controller).
         """
         tcp_pose = validate_pose6(
-            tcp_pose, name="tcp_pose", validate_angle_limits=True
+            tcp_pose, name="tcp2flange_pose", validate_angle_limits=True
         )
         T_w_t = pose6_to_T(tcp_pose)
         T_f_t = pose6_to_T(self._tcp_offset_pose)

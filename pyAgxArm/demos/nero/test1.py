@@ -1,10 +1,10 @@
 import time
-from pyAgxArm.api.agx_arm_factory import create_agx_arm_config, AgxArmFactory
+from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 
 def wait_motion_done(robot, timeout: float = 5.0, poll_interval: float = 0.1) -> bool:
     """Wait until `robot.get_arm_status().msg.motion_status == 0` or timeout."""
-    time.sleep(0.1)
+    time.sleep(0.5)
     start_t = time.monotonic()
     while True:
         status = robot.get_arm_status()
@@ -49,7 +49,6 @@ print(end_effector.__doc__)
 # wait_motion_done(robot, timeout=5.0)
 
 # robot.move_j([0.0] * 7)
-# time.sleep(0.1)
 # wait_motion_done(robot, timeout=5.0)
 
 
@@ -97,7 +96,7 @@ while True:
 
 # -------------------------- TCP ----------------------------
 
-# robot.set_tcp_offset([0, 0, 0.0235, 0, 0, 0])
+# robot.set_tcp_offset([0, 0, 0.1, 0, 0, 0])
 
 # time.sleep(0.1)
 # print(robot.get_tcp_pose())
