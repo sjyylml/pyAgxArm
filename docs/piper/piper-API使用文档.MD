@@ -867,7 +867,7 @@ robot.connect()
 
 robot.set_tcp_offset([0.0, 0.0, 0.10, 0.0, 0.0, 0.0])
 
-target_tcp_pose = [0.10, 0.0, 0.30, 0.0, 1.5708, 0.0]
+target_tcp_pose = [0.30, 0.0, 0.30, 0.0, 1.5707, 0.0]
 target_flange_pose = robot.get_tcp2flange_pose(target_tcp_pose)
 print("target_flange_pose =", target_flange_pose)
 
@@ -1184,12 +1184,12 @@ robot.set_speed_percent(100)
 robot.move_j([0, 0.4, -0.4, 0, -0.4, 0])
 
 # 等待运动结束（带 5s 超时，避免无限等待）
-    time.sleep(0.1)
+time.sleep(0.5)
 start_t = time.monotonic()
 while True:
     status = robot.get_arm_status()
     if status is not None and status.msg.motion_status == 0:
-print("已到达目标位置")
+        print("已到达目标位置")
         break
     if time.monotonic() - start_t > 5.0:
         print("等待运动结束超时（5s）")
@@ -1285,12 +1285,12 @@ robot.set_speed_percent(100)
 robot.move_p([0.1, 0.0, 0.3, 0.0, 1.570796326794896619, 0.0])
 
 # 等待运动结束（带 5s 超时，避免无限等待）
-    time.sleep(0.1)
+time.sleep(0.5)
 start_t = time.monotonic()
 while True:
     status = robot.get_arm_status()
     if status is not None and status.msg.motion_status == 0:
-print("已到达目标位置")
+        print("已到达目标位置")
         break
     if time.monotonic() - start_t > 5.0:
         print("等待运动结束超时（5s）")
@@ -1337,7 +1337,7 @@ robot.set_speed_percent(100)
 robot.move_l([0.1, 0.0, 0.3, 0.0, 1.570796326794896619, 0.0])
 
 # 等待运动结束（带 5s 超时，避免无限等待）
-time.sleep(0.1)
+time.sleep(0.5)
 start_t = time.monotonic()
 while True:
     status = robot.get_arm_status()
@@ -1394,7 +1394,7 @@ ep = [0.2, 0.0, 0.4, 0.0, 1.5708, 0.0]
 robot.move_c(sp, mp, ep)
 
 # 等待运动结束（带 5s 超时，避免无限等待）
-time.sleep(0.1)
+time.sleep(0.5)
 start_t = time.monotonic()
 while True:
     status = robot.get_arm_status()
