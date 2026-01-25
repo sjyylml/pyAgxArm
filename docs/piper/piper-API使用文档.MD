@@ -630,7 +630,7 @@ if fw is not None:
 
 - 功能说明:
 
-该指令用来设定机械臂在位置速度模式(move_j)、末端控制模式(move_p)和直线控制模式(move_l)下的运行速度百分比
+该指令用来设定机械臂在位置速度模式下的关节运动(move_j)、点到点运动(move_p)、直线运动(move_l)和圆弧运动(move_c)的运行速度百分比
 
 - 定义:
 
@@ -693,6 +693,10 @@ robot.set_installation_pos(robot.INSTALLATION_POS.HORIZONTAL)
 - 功能说明:
 
 设置运动模式（`move_p/move_j/move_l/move_c/move_mit/move_js`）。该接口会下发模式设置到控制器。
+
+`move_p/move_j/move_l/move_c`为位置速度模式，底层会对接收到消息进行平滑处理。
+
+`move_mit/move_js`为MIT电机透传模式，底层只负责消息转发，不会进行任何的平滑处理。
 
 - 定义:
 
@@ -863,6 +867,8 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
 robot.connect()
+
+robot.set_tcp_offset([0.0, 0.0, 0.10, 0.0, 0.0, 0.0])
 
 # 示例一：直接指定法兰位姿
 tcp_pose = robot.get_flange2tcp_pose([0.30, 0.0, 0.30, 0.0, 1.5707, 0.0])
@@ -1194,7 +1200,7 @@ robot.connect()
 robot.electronic_emergency_stop()
 ```
 
-### 关节运动(位置速度控制模式) move_j()
+### 关节运动 move_j()
 
 - 功能说明:
 
@@ -1250,7 +1256,7 @@ while True:
 
 - 功能说明:
 
-该指令会将机械臂切换到 **JS（从臂）模式**（MIT 模式），并下发关节目标角度。
+该指令会将机械臂切换到 **JS（从臂）模式**（MIT 透传模式），并下发关节目标角度。
 
 与 `move_j` 相比，`move_js` 更偏向“快速响应”控制：**不做平滑处理、无轨迹规划**，控制器/驱动器会尽可能快（但并非无限快）地响应目标角度。
 
