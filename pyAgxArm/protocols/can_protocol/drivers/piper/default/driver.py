@@ -1356,55 +1356,56 @@ class Driver(ArmDriverAbstract):
         msg = ArmMsgMasterArmMoveToHome(mode=0)
         self._send_msg(msg)
 
-    def get_joint_ctrl_states(self):
-        """Get the joint control states.
+    def get_master_joint_angles(self):
+        """Get the master arm joint angles,
+        can be used to control the slave arm.
 
         Returns
         -------
         MessageAbstract[list[float]] | None
-            The joint control states.
-            If the joint control states is not available, return None.
+            The joint angles feedback of the master arm.
+            If the joint angles are not available, return None.
 
         Message
         -------
-        `list[float]`: joint control states, unit: rad
+        `list[float]`: joint angles, unit: rad
 
         Examples
         --------
-        >>> jcs = robot.get_joint_ctrl_states()
-        >>> if jcs is not None:
-        >>>     print(jcs.msg)
-        >>>     print(jcs.hz, jcs.timestamp)
+        >>> mja = robot.get_master_joint_angles()
+        >>> if mja is not None:
+        >>>     print(mja.msg)
+        >>>     print(mja.hz, mja.timestamp)
         """
-        joint_ctrl_states: Optional[MessageAbstract[ArmMsgJointCtrl]] = None
-        if getattr(self, "_joint_ctrl_states", None) is None:
-            self._joint_ctrl_states = MessageAbstract(
+        master_joint_angles: Optional[MessageAbstract[ArmMsgJointCtrl]] = None
+        if getattr(self, "_master_joint_angles", None) is None:
+            self._master_joint_angles = MessageAbstract(
                 msg=list([0.0] * self._JOINT_NUMS),
                 msg_type=ArmMsgJointCtrl.type_,
             )
         if getattr(self._parser, "joint_ctrl_feedback_12", None) is not None:
-            joint_ctrl_states = self._parser.joint_ctrl_feedback_12
-            self._joint_ctrl_states.msg[0] = joint_ctrl_states.msg.joint_1
-            self._joint_ctrl_states.msg[1] = joint_ctrl_states.msg.joint_2
+            master_joint_angles = self._parser.joint_ctrl_feedback_12
+            self._master_joint_angles.msg[0] = master_joint_angles.msg.joint_1
+            self._master_joint_angles.msg[1] = master_joint_angles.msg.joint_2
         if getattr(self._parser, "joint_ctrl_feedback_34", None) is not None:
-            joint_ctrl_states = self._parser.joint_ctrl_feedback_34
-            self._joint_ctrl_states.msg[2] = joint_ctrl_states.msg.joint_3
-            self._joint_ctrl_states.msg[3] = joint_ctrl_states.msg.joint_4
+            master_joint_angles = self._parser.joint_ctrl_feedback_34
+            self._master_joint_angles.msg[2] = master_joint_angles.msg.joint_3
+            self._master_joint_angles.msg[3] = master_joint_angles.msg.joint_4
         if getattr(self._parser, "joint_ctrl_feedback_56", None) is not None:
-            joint_ctrl_states = self._parser.joint_ctrl_feedback_56
-            self._joint_ctrl_states.msg[4] = joint_ctrl_states.msg.joint_5
-            self._joint_ctrl_states.msg[5] = joint_ctrl_states.msg.joint_6
-        if getattr(self._parser, "joint_ctrl_feedback_7", None) is not None:
-            joint_ctrl_states = self._parser.joint_ctrl_feedback_7
-            self._joint_ctrl_states.msg[6] = joint_ctrl_states.msg.joint_7
-        if joint_ctrl_states is not None:
-            self._joint_ctrl_states.timestamp = joint_ctrl_states.timestamp
-            self._joint_ctrl_states.hz = self._ctx.fps.get_fps(
-                joint_ctrl_states.msg_type
+            master_joint_angles = self._parser.joint_ctrl_feedback_56
+            self._master_joint_angles.msg[4] = master_joint_angles.msg.joint_5
+            self._master_joint_angles.msg[5] = master_joint_angles.msg.joint_6
+        if master_joint_angles is not None:
+            self._master_joint_angles.timestamp = master_joint_angles.timestamp
+            self._master_joint_angles.hz = self._ctx.fps.get_fps(
+                master_joint_angles.msg_type
             )
-            return self._joint_ctrl_states
-        else:
-            return None
+            if Validator.is_joints(
+                self._master_joint_angles.msg,
+                length=self._JOINT_NUMS
+            ):
+                return self._master_joint_angles
+        return None
 
     # -------------------------- Other --------------------------
 

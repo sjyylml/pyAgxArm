@@ -1036,16 +1036,16 @@ robot.move_master_to_home()
 robot.restore_master_drag_mode()
 ```
 
-### 读取机械臂关节控制消息 get_joint_ctrl_states()
+### 读取主臂关节角度消息 get_master_joint_angles()
 
 - 功能说明:
 
-获取机械臂控制帧消息，用于获取主臂给从臂发送的控制帧
+获取主臂关节角度消息，用于控制从臂
 
 - 定义:
 
 ```python
-get_joint_ctrl_states(self) -> MessageAbstract[list[float]] | None
+get_master_joint_angles(self) -> MessageAbstract[list[float]] | None
 ```
 
 - 返回值:
@@ -1065,10 +1065,10 @@ robot = AgxArmFactory.create_arm(cfg)
 robot.connect()
 
 while True:
-    jc = robot.get_joint_ctrl_states()
-    if jc is not None:
-        print(jc.msg) # list
-        print(jc.hz, jc.timestamp)
+    mja = robot.get_master_joint_angles()
+    if mja is not None:
+        print(mja.msg) # list
+        print(mja.hz, mja.timestamp)
     time.sleep(0.005)
 ```
 
