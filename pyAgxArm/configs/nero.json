@@ -15,8 +15,8 @@
         "log_level":"DEBUG",
         "log_path":""
     },
-    "joint_name":["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "joint7"],
-    "joint_limit":{
+    "joint_names":["joint1", "joint2", "joint3", "joint4", "joint5", "joint6", "joint7"],
+    "joint_limits":{
         "joint1":[-2.705261, 2.705261],
         "joint2":[-1.745330, 1.745330],
         "joint3":[-2.757621, 2.757621],

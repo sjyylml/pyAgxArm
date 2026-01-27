@@ -30,6 +30,8 @@ print(end_effector.__doc__)
 
 # -------------------------- Basic ---------------------------
 
+# robot.set_normal_mode()
+
 # while not robot.enable():
 #     time.sleep(0.01)
 
@@ -38,7 +40,6 @@ print(end_effector.__doc__)
 
 # robot.set_speed_percent(100)
 # robot.set_motion_mode(robot.MOTION_MODE.P)
-# robot.set_normal_mode()
 
 
 # -------------------------- Move -----------------------------

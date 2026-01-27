@@ -1,19 +1,19 @@
 # ---------- robot 可选字段 ----------
 ROBOT_OPTION_FIELDS = {
     "nero": {
-        "joint_limit",
+        "joint_limits",
     },
     "piper": {
-        "joint_limit",
+        "joint_limits",
     },
     "piper_h": {
-        "joint_limit",
+        "joint_limits",
     },
     "piper_l": {
-        "joint_limit",
+        "joint_limits",
     },
     "piper_x": {
-        "joint_limit",
+        "joint_limits",
     },
 }
 # ---------- 预定义机械臂关节名字 ----------

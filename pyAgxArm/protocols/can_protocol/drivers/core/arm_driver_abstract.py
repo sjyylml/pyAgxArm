@@ -7,8 +7,8 @@ from .driver_context import DriverContext
 from ...msgs.core import AttributeBase, MessageAbstract
 from .protocol_parser_interface import ProtocolParserInterface
 from ..core.arm_driver_context import ArmDriverContext
+from .....utiles.vaildator import Validator
 from .....utiles.tf import (
-    validate_pose6,
     pose6_to_T,
     matmul4,
     inv_T,
@@ -234,9 +234,12 @@ class ArmDriverAbstract(ArmDriverInterface):
           - `roll`, `yaw` must be within `[-pi, pi]`
           - `pitch` must be within `[-pi/2, pi/2]`
         """
-        self._tcp_offset_pose = validate_pose6(
-            pose, name="set_tcp_offset", validate_angle_limits=True
+        Validator.validate_pose6(
+            pose,
+            name="set_tcp_offset",
+            validate_angle_limits=True
         )
+        self._tcp_offset_pose = pose
         if all(x == 0.0 for x in self._tcp_offset_pose):
             self._T_f_t = None
             self._T_t_f = None
@@ -289,8 +292,10 @@ class ArmDriverAbstract(ArmDriverInterface):
         >>> if flange_pose is not None:
         >>>     print(robot.get_flange2tcp_pose(flange_pose.msg))
         """
-        flange_pose = validate_pose6(
-            flange_pose, name="flange2tcp_pose", validate_angle_limits=True
+        Validator.validate_pose6(
+            flange_pose,
+            name="flange2tcp_pose",
+            validate_angle_limits=True
         )
         if self._T_f_t is None:
             return flange_pose
@@ -311,8 +316,10 @@ class ArmDriverAbstract(ArmDriverInterface):
 
         the TCP will move to `target_tcp_pose` (subject to kinematics and controller).
         """
-        tcp_pose = validate_pose6(
-            tcp_pose, name="tcp2flange_pose", validate_angle_limits=True
+        Validator.validate_pose6(
+            tcp_pose,
+            name="tcp2flange_pose",
+            validate_angle_limits=True
         )
         if self._T_t_f is None:
             return tcp_pose

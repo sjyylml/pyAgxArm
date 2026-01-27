@@ -41,28 +41,28 @@ def create_agx_arm_config(
         if field in kwargs:
             config[field] = kwargs[field]
     # ---------- joint name ----------
-    config["joint_name"] = ROBOT_JOINT_NAME.get(robot)
+    config["joint_names"] = ROBOT_JOINT_NAME.get(robot)
     # ---------- joint limit ----------
-    preset_joint_limit = ROBOT_JOINT_LIMIT_PRESET.get(robot)
-    if preset_joint_limit is None:
+    preset_joint_limits = ROBOT_JOINT_LIMIT_PRESET.get(robot)
+    if preset_joint_limits is None:
         raise ValueError(f"No joint limit preset for robot={robot}")
 
     # 使用深拷贝，避免污染全局 preset
-    final_joint_limit = copy.deepcopy(preset_joint_limit)
+    final_joint_limits = copy.deepcopy(preset_joint_limits)
 
-    user_joint_limit = kwargs.get("joint_limit")
-    if user_joint_limit is not None:
-        if not isinstance(user_joint_limit, dict):
-            raise TypeError("joint_limit must be a dict")
+    user_joint_limits = kwargs.get("joint_limits")
+    if user_joint_limits is not None:
+        if not isinstance(user_joint_limits, dict):
+            raise TypeError("joint_limits must be a dict")
 
-        for joint, limit in user_joint_limit.items():
-            if joint not in final_joint_limit:
+        for joint, limit in user_joint_limits.items():
+            if joint not in final_joint_limits:
                 raise ValueError(f"Invalid joint name: {joint}")
             if not (isinstance(limit, (list, tuple)) and len(limit) == 2):
                 raise ValueError(f"Invalid limit format for {joint}")
-            final_joint_limit[joint] = list(limit)
+            final_joint_limits[joint] = list(limit)
 
-    config["joint_limit"] = final_joint_limit
+    config["joint_limits"] = final_joint_limits
     # ---------- comm ----------
     if comm == "can":
         config["comm"] = {

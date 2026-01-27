@@ -9,7 +9,7 @@ from ......utiles.numeric_codec import (
     NumericCodec as nc,
     RAD2DEG,
 )
-from ......utiles.tf import validate_pose6
+from ......utiles.vaildator import Validator
 from ....msgs.piper.default import (
     ArmMsgModeCtrl,
     ArmMsgFeedbackJointStates,
@@ -168,7 +168,11 @@ class Driver(ArmDriverAbstract):
 
     def _deal_move_p_msgs(self, pose: List[float]):
         """Get pose control messages."""
-        pose = validate_pose6(pose, name="flange_pose", validate_angle_limits=True)
+        Validator.validate_pose6(
+            pose,
+            name="flange_pose",
+            validate_angle_limits=True
+        )
 
         # Radians to degrees conversion
         rpy = [i * RAD2DEG for i in pose[3:]]
@@ -194,14 +198,16 @@ class Driver(ArmDriverAbstract):
 
     def _deal_move_j_msgs(self, joints: List[float]):
         """Get joint control messages."""
-        if not isinstance(joints, list):
-            raise ValueError("Joints should be a list")
-
-        if len(joints) != self._JOINT_NUMS:
-            expected = ", ".join(
-                f"j{i}" for i in range(1, self._JOINT_NUMS + 1)
+        joints = Validator.clamp_joints(
+            joints,
+            length=self._JOINT_NUMS,
+            name="joints",
+            joints_limit=list(
+                self._config.get(
+                    "joint_limits", {}
+                ).values()
             )
-            raise ValueError(f"Joints should be [{expected}]")
+        )
 
         # Convert user inputs to protocol fields.
         joints_mdeg = [round(j * RAD2DEG * 1e3) for j in joints]
@@ -372,9 +378,18 @@ class Driver(ArmDriverAbstract):
             self._joint_states.timestamp = joint_states.timestamp
             self._joint_states.hz = self._ctx.fps.get_fps(
                 joint_states.msg_type)
-            return self._joint_states
-        else:
-            return None
+            if Validator.is_joints(
+                self._joint_states.msg,
+                length=self._JOINT_NUMS,
+                name="joint_states",
+            ):
+                return self._joint_states
+            else:
+                print(
+                    "Warning: Invalid joint states received: "
+                    f"{self._joint_states.msg}"
+                )
+        return None
 
     def get_flange_pose(self):
         """Get current flange pose feedback.
@@ -432,9 +447,18 @@ class Driver(ArmDriverAbstract):
         if end_pose is not None:
             self._end_pose.timestamp = end_pose.timestamp
             self._end_pose.hz = self._ctx.fps.get_fps(end_pose.msg_type)
-            return self._end_pose
-        else:
-            return None
+            if Validator.is_pose6(
+                self._end_pose.msg,
+                name="flange_pose",
+                validate_angle_limits=True
+            ):
+                return self._end_pose
+            else:
+                print(
+                    "Warning: Invalid end pose received: "
+                    f"{self._end_pose.msg}"
+                )
+        return None
 
     def get_arm_status(self):
         """Get the arm status feedback.
@@ -817,7 +841,6 @@ class Driver(ArmDriverAbstract):
             self._send_msg(msg)
 
         if joint_index == 255:
-            # return self._all_joints_bool(lambda i: self.enable(i))
             send_enable_msg(self._JOINT_NUMS + 1)
             return all(self.get_joints_enable_status_list())
         else:
@@ -852,7 +875,6 @@ class Driver(ArmDriverAbstract):
             self._send_msg(msg)
 
         if joint_index == 255:
-            # return self._all_joints_bool(lambda i: self.disable(i))
             send_disable_msg(self._JOINT_NUMS + 1)
             return all(not self.get_joint_enable_status(i)
                        for i in self._JOINT_INDEX_LIST[:-1])
@@ -1261,6 +1283,19 @@ class Driver(ArmDriverAbstract):
         if t_ff < -18.0 or t_ff > 18.0:
             raise ValueError(
                 "Torque reference should be between -18.0 and 18.0")
+
+        limit = self._config.get(
+            "joint_limits", {}
+        ).get(f"joint{joint_index}", None)
+
+        if limit is not None:
+            p_des = Validator.clamp(p_des, limit[0], limit[1])
+        else:
+            p_des = Validator.clamp(
+                p_des,
+                -Validator.REF_MAX_ANGLE,
+                Validator.REF_MAX_ANGLE,
+            )
 
         p_des = nc.FloatToUint(p_des, -12.5, 12.5, 16)
         v_des = nc.FloatToUint(v_des, -45.0, 45.0, 12)
