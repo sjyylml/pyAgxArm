@@ -28,7 +28,7 @@ create_agx_arm_config(
 |comm|str|通讯类型，可选：`"can"`（默认：`"can"`）。注意：`comm` 不是 can 通道名；can 通道由下方 `channel` 指定|
 |firmeware_version|str|默认为"default"，选择机械臂当前底层对应的主控固件版本|
 |---可选参数---|||
-|joint_limit|dict|默认可以不输入，程序内自动根据机械臂赋值指定的关节限位，如果要指定，需要手动输入dict类型的关节限位，单位：弧度，示例下文可见，暂时不会对手动输入的关节限位生效到实际控制中|
+|joint_limits|dict|默认可以不输入，程序内自动根据机械臂赋值指定的关节限位，如果要指定，需要手动输入dict类型的关节限位，单位：弧度，示例下文可见，暂时不会对手动输入的关节限位生效到实际控制中|
 |当通讯方式为can时|||
 |channel|str|默认为"can0"，选择预期连接的can channel|
 |interface|str|默认为"socketcan"，选择连接can模块的接口种类，官方can模块连接到linux系统中必须为"socketcan"，如果想要连接macos，需要更换串口can模块然后将该参数设置为"slcan"|
@@ -57,8 +57,8 @@ create_agx_arm_config(
             "timeout": 1.0
         }
     },
-    "joint_name": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"], 
-    "joint_limit":{
+    "joint_names": ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"], 
+    "joint_limits":{
         "joint1":[-2.617994, 2.617994],
         "joint2":[0.0, 3.141593],
         "joint3":[-2.967060, 0.0],
