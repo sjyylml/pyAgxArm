@@ -1,7 +1,7 @@
 from .attritube_base import AttributeBase
 from .msg_abstract import MessageAbstract
 from .msg_interface import MessageInterface, StrMixin
-from .enum_base import IntEnumBase
+from .enum_base import IntEnumBase, EnumBase
 
 __all__ = [
     'AttributeBase',
@@ -9,5 +9,6 @@ __all__ = [
     'MessageInterface',
     'StrMixin',
     'IntEnumBase',
+    'EnumBase'
 ]
 

@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 class IntEnumBase(IntEnum):
     def __str__(self):
@@ -18,3 +18,25 @@ class IntEnumBase(IntEnum):
                 return cls.UNKNOWN
             else:
                 raise ValueError(f"{cls.__name__}: invalid enum value 0x{val:X}, and no UNKNOWN defined")
+    @classmethod
+    def value_list(cls):
+        return [e.value for e in cls]
+    
+
+class EnumBase(Enum):
+    def __str__(self):
+        return f"{self.name}({self.value})"
+    def __repr__(self):
+        return f"{self.name}({self.value})"
+    @classmethod
+    def match_value(cls, val):
+        try:
+            return cls(val)
+        except ValueError:
+            if hasattr(cls, "UNKNOWN"):
+                return cls.UNKNOWN
+            else:
+                raise ValueError(f"{cls.__name__}: invalid enum value {val}, and no UNKNOWN defined")
+    @classmethod
+    def value_list(cls):
+        return [e.value for e in cls]

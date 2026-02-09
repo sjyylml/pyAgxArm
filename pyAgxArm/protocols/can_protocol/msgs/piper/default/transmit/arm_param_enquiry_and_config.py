@@ -3,6 +3,8 @@
 from typing_extensions import (
     Literal,
 )
+from enum import unique
+from ....core import IntEnumBase, EnumBase
 from ....core.attritube_base import AttributeBase
 
 class ArmMsgParamEnquiryAndConfig(AttributeBase):
@@ -80,6 +82,37 @@ class ArmMsgParamEnquiryAndConfig(AttributeBase):
             0x02: Full load.
             0x03: Invalid.
     '''
+    class Enums:
+        @unique
+        class EnquiryParam(IntEnumBase):
+            END_VEL_ACC = 0x01
+            CRASH_PROTECTION = 0x01
+            GRIPPER_TEACHING = 0x02
+            UNKNOWN = 0xFF
+        @unique
+        class SetParam(IntEnumBase):
+            RESET_FLANGE_VEL_ACC_TO_DEFAULT = 0x01
+            RESET_ALL_JOINT_LIMIT_VEL_ACC_TO_DEFAULT = 0x02
+            UNKNOWN = 0xFF
+        @unique
+        class SetMsg0x48xFeedback(IntEnumBase):
+            # SetJointVelAccPeriodicFeedback
+            INVALID = 0x00
+            ENABLE_PERIODIC = 0x01
+            DISABLE_PERIODIC = 0x02
+            UNKNOWN = 0xFF
+        @unique
+        class SetPayloadLevelEnable(IntEnumBase):
+            ENABLE = 0xAE
+            DISABLE = 0xFF
+            UNKNOWN = 0xFF
+        @unique
+        class SetPayLoadLevel(IntEnumBase):
+            EMPTY = 0x01
+            HALF = 0x02
+            FULL = 0x03
+            UNKNOWN = 0xFF
+    
     def __init__(self, 
                  param_enquiry:Literal[0x00, 0x01, 0x02, 0x03, 0x04] = 0x00,
                  param_setting: Literal[0x00, 0x01, 0x02] = 0,

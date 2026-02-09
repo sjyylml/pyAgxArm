@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Callable, Optional, Union, List, Dict, Tuple, Type
 
 from typing_extensions import Protocol
-
+from typing_extensions import Final
 from ......utiles.fps import FPSManager
 from ......utiles.numeric_codec import (
     NumericCodec as nc,
@@ -12,7 +12,69 @@ from ....msgs.core.msg_abstract import MessageAbstract
 from ....msgs.piper.default import *
 from ...core.protocol_parser_interface import ProtocolParserInterface
 from ...core.table_driven import TableDriven
+from ....msgs.core import EnumBase, IntEnumBase
 
+class DriverAPIOptions:
+    class INSTALLATION_POS(EnumBase):
+        HORIZONTAL: Final = "horizontal"
+        LEFT: Final = "left"
+        RIGHT: Final = "right"
+
+    class PAYLOAD(EnumBase):
+        EMPTY: Final = "empty"
+        HALF: Final = "half"
+        FULL: Final = "full"
+
+    class MOTION_MODE(EnumBase):
+        P: Final = "p"
+        J: Final = "j"
+        L: Final = "l"
+        C: Final = "c"
+        MIT: Final = "mit"
+        JS: Final = "js"
+
+class DriverAPIProtoAdapter:
+    _INSTALL_POS_CODE = {
+        DriverAPIOptions.INSTALLATION_POS.HORIZONTAL: ArmMsgModeCtrl.Enums.InstallationPos.HORIZONTAL,
+        DriverAPIOptions.INSTALLATION_POS.LEFT: ArmMsgModeCtrl.Enums.InstallationPos.LEFT,
+        DriverAPIOptions.INSTALLATION_POS.RIGHT: ArmMsgModeCtrl.Enums.InstallationPos.RIGHT,
+    }
+
+    _MOVE_CODE = {
+        DriverAPIOptions.MOTION_MODE.P: ArmMsgModeCtrl.Enums.MotionMode.P,
+        DriverAPIOptions.MOTION_MODE.J: ArmMsgModeCtrl.Enums.MotionMode.J,
+        DriverAPIOptions.MOTION_MODE.L: ArmMsgModeCtrl.Enums.MotionMode.L,
+        DriverAPIOptions.MOTION_MODE.C: ArmMsgModeCtrl.Enums.MotionMode.C,
+        DriverAPIOptions.MOTION_MODE.MIT: ArmMsgModeCtrl.Enums.MotionMode.MIT,
+        DriverAPIOptions.MOTION_MODE.JS: ArmMsgModeCtrl.Enums.MotionMode.J,
+    }
+
+    _MIT_CODE = {
+        DriverAPIOptions.MOTION_MODE.MIT: ArmMsgModeCtrl.Enums.MitMode.MIT,
+        DriverAPIOptions.MOTION_MODE.JS: ArmMsgModeCtrl.Enums.MitMode.MIT,
+    }
+
+    _PAYLOAD_CODE = {
+        DriverAPIOptions.PAYLOAD.EMPTY: ArmMsgParamEnquiryAndConfig.Enums.SetPayLoadLevel.EMPTY,
+        DriverAPIOptions.PAYLOAD.HALF: ArmMsgParamEnquiryAndConfig.Enums.SetPayLoadLevel.HALF,
+        DriverAPIOptions.PAYLOAD.FULL: ArmMsgParamEnquiryAndConfig.Enums.SetPayLoadLevel.FULL,
+    }
+
+    @classmethod
+    def installation_pos(cls, value: str) -> int:
+        return cls._INSTALL_POS_CODE[value]
+
+    @classmethod
+    def motion_mode(cls, value: str) -> tuple[int, int]:
+        return cls._MOVE_CODE[value]
+    
+    @classmethod
+    def mit_mode(cls, value: str) -> tuple[int, int]:
+        return cls._MIT_CODE.get(value, ArmMsgModeCtrl.Enums.MitMode.POS_VEL)
+
+    @classmethod
+    def payload(cls, value: str) -> int:
+        return cls._PAYLOAD_CODE[value]
 
 class _HighSpdLike(Protocol):
     motor_speed: float

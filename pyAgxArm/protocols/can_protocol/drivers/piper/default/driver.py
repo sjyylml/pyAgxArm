@@ -2,7 +2,7 @@ import copy
 from typing import Optional, Callable, TypeVar, ClassVar, List, Dict
 from typing_extensions import Literal, Final
 
-from .parser import Parser
+from .parser import Parser, DriverAPIOptions, DriverAPIProtoAdapter
 from ...core.arm_driver_abstract import ArmDriverAbstract
 from ....msgs.core import MessageAbstract
 from ......utiles.numeric_codec import (
@@ -66,81 +66,9 @@ class Driver(ArmDriverAbstract):
     - Some `set_*` APIs additionally verify by reading back state; their
       docstrings will mention the verification method if applicable.
     """
-
-    class INSTALLATION_POS:
-        """
-        Installation position constants.
-
-        Use:
-            robot.set_installation_pos(robot.INSTALLATION_POS.HORIZONTAL)
-        """
-
-        HORIZONTAL: Final[Literal["horizontal"]] = "horizontal"
-        LEFT: Final[Literal["left"]] = "left"
-        RIGHT: Final[Literal["right"]] = "right"
-
-        # Keep as list for backward compatibility (callers may print or
-        # iterate).
-        _VALUES: ClassVar[List[str]] = [HORIZONTAL, LEFT, RIGHT]
-
-        # Internal mapping to protocol code.
-        _POS_CODE: ClassVar[Dict[str, int]] = {
-            HORIZONTAL: 0x01,
-            LEFT: 0x02,
-            RIGHT: 0x03,
-        }
-
-    class PAYLOAD:
-        """
-        Arm payload constants.
-
-        Use:
-            robot.set_payload(robot.PAYLOAD.EMPTY)
-        """
-
-        EMPTY: Final[Literal["empty"]] = "empty"
-        HALF: Final[Literal["half"]] = "half"
-        FULL: Final[Literal["full"]] = "full"
-
-        _VALUES: ClassVar[List[str]] = [EMPTY, HALF, FULL]
-        _LOAD_CODE: ClassVar[Dict[str, int]] = {
-            EMPTY: 0x00,
-            HALF: 0x01,
-            FULL: 0x02,
-        }
-
-    class MOTION_MODE:
-        """
-        Motion mode constants.
-
-        Use:
-            robot.set_motion_mode(robot.MOTION_MODE.J)
-        """
-
-        P: Final[Literal["p"]] = "p"
-        J: Final[Literal["j"]] = "j"
-        L: Final[Literal["l"]] = "l"
-        C: Final[Literal["c"]] = "c"
-        MIT: Final[Literal["mit"]] = "mit"
-        JS: Final[Literal["js"]] = "js"
-
-        _VALUES: ClassVar[List[str]] = [P, J, L, C, MIT, JS]
-        _MOVE_CODE: ClassVar[Dict[str, int]] = {
-            P: 0x00,
-            J: 0x01,
-            L: 0x02,
-            C: 0x03,
-            MIT: 0x04,
-            JS: 0x01,
-        }
-        _MIT_CODE: ClassVar[Dict[str, int]] = {
-            P: 0x00,
-            J: 0x00,
-            L: 0x00,
-            C: 0x00,
-            MIT: 0xAD,
-            JS: 0xAD,
-        }
+    @property
+    def OPTIONS(self):
+        return DriverAPIOptions
 
     ARM_STATUS = ArmMsgFeedbackStatusEnum
 

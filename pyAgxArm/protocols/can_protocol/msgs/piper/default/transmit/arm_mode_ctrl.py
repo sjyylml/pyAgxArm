@@ -4,7 +4,7 @@ from typing_extensions import (
     Literal,
 )
 from enum import unique
-from ....core import IntEnumBase
+from ....core import IntEnumBase, EnumBase
 from ....core import AttributeBase
 
 class ArmMsgModeCtrl(AttributeBase):
@@ -104,6 +104,40 @@ class ArmMsgModeCtrl(AttributeBase):
     _VALID_MOVE_MODE = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05]
     _VALID_MIT_MODE = [0x00, 0xAD, 0xFF]
     _VALID_INSTALLATION_POS = [0x00, 0x01, 0x02, 0x03]
+
+    class Enums:
+        @unique
+        class CtrlMode(IntEnumBase):
+            STANDBY = 0x00
+            CAN_CTRL = 0x01
+            TEACHING_MODE = 0x02
+            ETHERNET_CONTROL_MODE = 0x03
+            WIFI_CONTROL_MODE = 0x04
+            REMOTE_CONTROL_MODE = 0x05
+            LINKAGE_TEACHING_INPUT_MODE = 0x06
+            OFFLINE_TRAJECTORY_MODE = 0x07
+            UNKNOWN = 0xFF
+        @unique
+        class MotionMode(IntEnumBase):
+            P = 0x00
+            J = 0x01
+            L = 0x02
+            C = 0x03
+            MIT = 0x04
+            CPV = 0x05
+            UNKNOWN = 0xFF
+        @unique
+        class MitMode(IntEnumBase):
+            POS_VEL = 0x00
+            MIT = 0xAD
+            UNKNOWN = 0xFF
+        @unique
+        class InstallationPos(IntEnumBase):
+            INVALID = 0x00
+            HORIZONTAL = 0x01
+            LEFT = 0x02
+            RIGHT = 0x03
+            UNKNOWN = 0xFF
 
     def __init__(self, 
                  ctrl_mode: Literal[0x00, 0x01, 0x03, 0x04, 0x07] = 0x01,

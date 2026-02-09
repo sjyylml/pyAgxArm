@@ -241,6 +241,63 @@ class ArmMsgFeedbackStatus(AttributeBase):
         "trajectory_num",
         "err_status",
     )
+    class Enums:
+        @unique
+        class CtrlMode(IntEnumBase):
+            STANDBY = 0x00
+            CAN_CTRL = 0x01
+            TEACHING_MODE = 0x02
+            ETHERNET_CONTROL_MODE = 0x03
+            WIFI_CONTROL_MODE = 0x04
+            REMOTE_CONTROL_MODE = 0x05
+            LINKAGE_TEACHING_INPUT_MODE = 0x06
+            OFFLINE_TRAJECTORY_MODE = 0x07
+            UNKNOWN = 0xFF
+        @unique
+        class ArmStatus(IntEnumBase):
+            NORMAL = 0x00
+            EMERGENCY_STOP = 0x01
+            NO_SOLUTION = 0x02
+            SINGULARITY_POINT = 0x03
+            TARGET_POS_EXCEEDS_LIMIT = 0x04
+            JOINT_COMMUNICATION_ERR = 0x05
+            JOINT_BRAKE_NOT_RELEASED = 0x06
+            COLLISION_OCCURRED = 0x07
+            OVERSPEED_DURING_TEACHING_DRAG = 0x08
+            JOINT_STATUS_ERR = 0x09
+            OTHER_ERR = 0x0A
+            TEACHING_RECORD = 0x0B
+            TEACHING_EXECUTION = 0x0C
+            TEACHING_PAUSE = 0x0D
+            MAIN_CONTROLLER_NTC_OVER_TEMPERATURE = 0x0E
+            RELEASE_RESISTOR_NTC_OVER_TEMPERATURE = 0x0F
+            UNKNOWN = 0xFF
+        @unique
+        class ModeFeedback(IntEnumBase):
+            MOVE_P = 0x00
+            MOVE_J = 0x01
+            MOVE_L = 0x02
+            MOVE_C = 0x03
+            MOVE_MIT = 0x04
+            MOVE_CPV = 0x05
+            UNKNOWN = 0xFF
+        @unique
+        class TeachingState(IntEnumBase):
+            DISABLED = 0x00               # 关闭
+            START_RECORDING = 0x01        # 开始示教记录（进入拖动示教模式）
+            STOP_RECORDING = 0x02         # 结束示教记录（退出拖动示教模式）
+            EXECUTE_TRAJECTORY = 0x03     # 执行示教轨迹（拖动示教轨迹复现）
+            PAUSE_EXECUTION = 0x04        # 暂停执行
+            RESUME_EXECUTION = 0x05       # 继续执行（轨迹复现继续）
+            TERMINATE_EXECUTION = 0x06    # 终止执行
+            MOVE_TO_START = 0x07          # 运动到轨迹起点
+            UNKNOWN = 0xFF
+        @unique
+        class MotionStatus(IntEnumBase):
+            REACH_TARGET_POS_SUCCESSFULLY = 0x00
+            REACH_TARGET_POS_FAILED = 0x01
+            UNKNOWN = 0xFF
+    
     def __init__(self,
                  ctrl_mode: int = 0,
                  arm_status: int = 0,
