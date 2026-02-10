@@ -1929,9 +1929,9 @@ class Driver(ArmDriverAbstract):
         Parameters
         ----------
         `load`: Literal['empty', 'half', 'full']
-        - `PAYLOAD.EMPTY`: empty payload
-        - `PAYLOAD.HALF`: half payload
-        - `PAYLOAD.FULL`: full payload
+        - `OPTIONS.PAYLOAD.EMPTY`: empty payload
+        - `OPTIONS.PAYLOAD.HALF`: half payload
+        - `OPTIONS.PAYLOAD.FULL`: full payload
 
         `timeout`: float, optional
         - Timeout in seconds. Default is 1.0.
@@ -1948,17 +1948,17 @@ class Driver(ArmDriverAbstract):
         Examples
         --------
         >>> # 1. Set payload to empty
-        >>> success = robot.set_payload(robot.PAYLOAD.EMPTY)
+        >>> success = robot.set_payload(robot.OPTIONS.PAYLOAD.EMPTY)
         >>> if success:
         >>>     print("Payload set successfully")
         >>>
         >>> # 2. Set payload to half
-        >>> success = robot.set_payload(robot.PAYLOAD.HALF)
+        >>> success = robot.set_payload(robot.OPTIONS.PAYLOAD.HALF)
         >>> if success:
         >>>     print("Payload set successfully")
         >>>
         >>> # 3. Set payload to full
-        >>> success = robot.set_payload(robot.PAYLOAD.FULL)
+        >>> success = robot.set_payload(robot.OPTIONS.PAYLOAD.FULL)
         >>> if success:
         >>>     print("Payload set successfully")
         """

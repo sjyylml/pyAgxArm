@@ -10,7 +10,7 @@ class DriverAPIOptions:
         End-effector kind constants.
 
         Use:
-            robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+            robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
         """
 
         AGX_GRIPPER: Final[Literal["agx_gripper"]] = "agx_gripper"

@@ -161,7 +161,7 @@ init_effector(self, effector: str) -> EffectorDriver
 
 |名称|类型|说明|
 |---|---|---|
-|effector|str|执行器类型（建议使用 `robot.EFFECTOR.xxx` 常量）|
+|effector|str|执行器类型（建议使用 `robot.OPTIONS.EFFECTOR.xxx` 常量）|
 
 - 使用示例:
 
@@ -173,7 +173,7 @@ robot = AgxArmFactory.create_arm(cfg)
 robot.connect()
 
 # 初始化执行器（只能调用一次）
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 ```
 
 ## 通用状态相关

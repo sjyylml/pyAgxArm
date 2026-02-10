@@ -24,8 +24,8 @@ robot.connect()
 print(robot.get_channel())
 print(robot.__doc__)
 
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
-# end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
+# end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 print(end_effector.__doc__)
 
 
@@ -38,8 +38,8 @@ print(end_effector.__doc__)
 #     time.sleep(0.01)
 
 # robot.set_speed_percent(100)
-# robot.set_installation_pos(robot.INSTALLATION_POS.HORIZONTAL)
-# robot.set_motion_mode(robot.MOTION_MODE.J)
+# robot.set_installation_pos(robot.OPTIONS.INSTALLATION_POS.HORIZONTAL)
+# robot.set_motion_mode(robot.OPTIONS.MOTION_MODE.J)
 
 # print(robot.set_links_vel_acc_period_feedback(False))
 
@@ -194,7 +194,7 @@ while True:
 # end_effector.calibrate_gripper()
 
 # 5. Move the gripper.
-# robot.set_motion_mode(robot.MOTION_MODE.P)
+# robot.set_motion_mode(robot.OPTIONS.MOTION_MODE.P)
 # end_effector.move_gripper(0.07)
 # time.sleep(0.2)
 # end_effector.move_gripper(0)
@@ -230,7 +230,7 @@ while True:
 
 # -----------------------------------------------------------------------------------------------
 
-# print(robot.set_payload(robot.PAYLOAD.EMPTY))
+# print(robot.set_payload(robot.OPTIONS.PAYLOAD.EMPTY))
 
 # -----------------------------------------------------------------------------------------------
 

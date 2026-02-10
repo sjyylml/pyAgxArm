@@ -28,7 +28,7 @@ robot_cfg = create_agx_arm_config(robot=args.robot, comm="can", channel=args.can
 robot: Driver = AgxArmFactory.create_arm(robot_cfg)
 robot.connect()
 
-effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 
 def clamp_refresh_rate(rate_hz):
     return max(0.5, min(rate_hz, 200.0))

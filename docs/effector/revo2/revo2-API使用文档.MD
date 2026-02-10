@@ -41,7 +41,7 @@ class EFFECTOR:
     End-effector kind constants.
 
     Use:
-        robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+        robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
     """
 
     AGX_GRIPPER: Final[Literal["agx_gripper"]] = "agx_gripper"
@@ -61,7 +61,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 ```
 
 注意：
@@ -94,7 +94,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 ```
 
@@ -124,7 +124,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 time.sleep(0.5)
@@ -155,7 +155,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 time.sleep(0.5)
@@ -210,7 +210,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 time.sleep(0.2)
@@ -255,7 +255,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 time.sleep(0.2)
@@ -300,7 +300,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 time.sleep(0.2)
@@ -345,7 +345,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 time.sleep(0.2)
@@ -397,7 +397,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 # 全部张开/归零
@@ -438,7 +438,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 end_effector.speed_ctrl(thumb_tip=50)
@@ -475,7 +475,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 end_effector.current_ctrl(thumb_tip=10)
@@ -517,7 +517,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="nero", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.REVO2)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.REVO2)
 robot.connect()
 
 # 拇指尖移动到位置 100，然后设置 2 秒到位（200 * 10ms）

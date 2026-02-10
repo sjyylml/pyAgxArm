@@ -41,7 +41,7 @@ class EFFECTOR:
     End-effector kind constants.
 
     Use:
-        robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+        robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
     """
 
     AGX_GRIPPER: Final[Literal["agx_gripper"]] = "agx_gripper"
@@ -61,7 +61,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 ```
 
 注意：
@@ -95,7 +95,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 ```
 
@@ -130,7 +130,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 time.sleep(0.5)
@@ -161,7 +161,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 time.sleep(0.5)
@@ -231,7 +231,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 while True:
@@ -280,7 +280,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 gcs = end_effector.get_gripper_ctrl_states()
@@ -330,7 +330,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 param = end_effector.get_gripper_teaching_pendant_param()
@@ -378,7 +378,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 # 张开到 5cm，力 1N
@@ -422,7 +422,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 time.sleep(0.2)
@@ -459,7 +459,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 end_effector.disable_gripper()
@@ -513,7 +513,7 @@ from pyAgxArm import create_agx_arm_config, AgxArmFactory
 
 cfg = create_agx_arm_config(robot="piper", comm="can", channel="can0")
 robot = AgxArmFactory.create_arm(cfg)
-end_effector = robot.init_effector(robot.EFFECTOR.AGX_GRIPPER)
+end_effector = robot.init_effector(robot.OPTIONS.EFFECTOR.AGX_GRIPPER)
 robot.connect()
 
 success = end_effector.set_gripper_teaching_pendant_param(
