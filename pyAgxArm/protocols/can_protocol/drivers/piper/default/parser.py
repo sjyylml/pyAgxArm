@@ -13,20 +13,20 @@ from ....msgs.piper.default import *
 from ...core.protocol_parser_interface import ProtocolParserInterface
 from ...core.protocol_parser_abstract import DriverAPIOptions, DriverAPIProtoAdapter
 from ...core.table_driven import TableDriven
-from ....msgs.core import EnumBase, IntEnumBase
+from ....msgs.core import EnumBase, IntEnumBase, StrStruct
 
 class PiperDefaultDriverAPIOptions(DriverAPIOptions):
-    class INSTALLATION_POS(EnumBase):
+    class INSTALLATION_POS(StrStruct):
         HORIZONTAL: Final = "horizontal"
         LEFT: Final = "left"
         RIGHT: Final = "right"
 
-    class PAYLOAD(EnumBase):
+    class PAYLOAD(StrStruct):
         EMPTY: Final = "empty"
         HALF: Final = "half"
         FULL: Final = "full"
 
-    class MOTION_MODE(EnumBase):
+    class MOTION_MODE(StrStruct):
         P: Final = "p"
         J: Final = "j"
         L: Final = "l"
