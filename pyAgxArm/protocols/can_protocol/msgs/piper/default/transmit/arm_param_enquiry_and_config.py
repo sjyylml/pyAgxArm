@@ -86,8 +86,8 @@ class ArmMsgParamEnquiryAndConfig(AttributeBase):
         @unique
         class EnquiryParam(IntEnumBase):
             END_VEL_ACC = 0x01
-            CRASH_PROTECTION = 0x01
-            GRIPPER_TEACHING = 0x02
+            CRASH_PROTECTION = 0x02
+            GRIPPER_TEACHING = 0x04
             UNKNOWN = 0xFF
         @unique
         class SetParam(IntEnumBase):
@@ -104,7 +104,7 @@ class ArmMsgParamEnquiryAndConfig(AttributeBase):
         @unique
         class SetPayloadLevelEnable(IntEnumBase):
             ENABLE = 0xAE
-            DISABLE = 0xFF
+            DISABLE = 0xFE
             UNKNOWN = 0xFF
         @unique
         class SetPayLoadLevel(IntEnumBase):
