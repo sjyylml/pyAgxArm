@@ -16,6 +16,7 @@ Test:
 |---|---|
 |官方can模块的使用|[can_user](./docs/can_user.MD)|
 |各臂接口函数的详细说明|[docs](./docs)|
+|nero机械臂使用pyAgxArm读取数据|[First-TimeUserGuide(CAN)](./docs/nero/First-TimeUserGuide(CAN).MD)|
 |机械臂DEMO|[demos](./pyAgxArm/demos/DEMO_README(ZH).MD)|
 |CHANGELOG|[CHANGELOG](./CHANGELOG.MD)|
 |Q&A|[Q&A](./docs/Q&A.MD)|
