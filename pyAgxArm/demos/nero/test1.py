@@ -95,6 +95,12 @@ while True:
     time.sleep(0.005)
 
 
+# -------------------------- Master/Slave --------------------------
+
+# robot.set_master_mode()
+# robot.set_slave_mode()
+
+
 # -------------------------- TCP ----------------------------
 
 # robot.set_tcp_offset([0, 0, 0.1, 0, 0, 0])

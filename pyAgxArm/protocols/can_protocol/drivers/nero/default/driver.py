@@ -1,5 +1,5 @@
-from typing import Optional, ClassVar, List, Dict
-from typing_extensions import Literal, Final
+from typing import Optional, List
+from typing_extensions import Literal
 
 from .parser import Parser, NeroDefaultDriverAPIOptions, NeroDefaultDriverAPIProtoAdapter
 from ...core.arm_driver_abstract import ArmDriverAbstract
@@ -750,3 +750,17 @@ class Driver(ArmDriverAbstract):
         self._msg_mode.enable_can_push = 0x01
         self._set_mode()
         self._msg_mode.enable_can_push = 0x00
+
+    def set_master_mode(self):
+        """Set the arm to the master arm zero force drag mode (master arm)."""
+        self._msg_mode.enable_can_push = 0x02
+        self._set_mode()
+        self._msg_mode.enable_can_push = 0x00
+        self._set_master_slave_config(linkage_config=0xFA)
+
+    def set_slave_mode(self):
+        """Set the arm to the slave arm controlled mode (slave arm)."""
+        self._msg_mode.enable_can_push = 0x02
+        self._set_mode()
+        self._msg_mode.enable_can_push = 0x00
+        self._set_master_slave_config(linkage_config=0xFC)

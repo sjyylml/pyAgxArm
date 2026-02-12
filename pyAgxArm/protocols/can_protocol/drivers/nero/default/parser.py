@@ -19,7 +19,7 @@ from ....msgs.nero.default import (
     ArmMsgModeCtrl,
 )
 from ...core.protocol_parser_abstract import DriverAPIOptions, DriverAPIProtoAdapter
-from ....msgs.core import EnumBase, IntEnumBase, StrStruct
+from ....msgs.core import StrStruct
 
 class NeroDefaultDriverAPIOptions(DriverAPIOptions):
 

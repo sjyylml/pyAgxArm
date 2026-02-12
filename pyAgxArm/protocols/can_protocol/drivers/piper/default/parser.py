@@ -13,7 +13,7 @@ from ....msgs.piper.default import *
 from ...core.protocol_parser_interface import ProtocolParserInterface
 from ...core.protocol_parser_abstract import DriverAPIOptions, DriverAPIProtoAdapter
 from ...core.table_driven import TableDriven
-from ....msgs.core import EnumBase, IntEnumBase, StrStruct
+from ....msgs.core import StrStruct
 
 class PiperDefaultDriverAPIOptions(DriverAPIOptions):
     class INSTALLATION_POS(StrStruct):
