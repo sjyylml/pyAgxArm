@@ -170,12 +170,4 @@ python -m pyAgxArm.demos.nero.force_ctrl_demo --channel can0 --mode compliant
 
 ## 注意事项
 
-- 使用can协议情况下，需要先激活can设备，并且设置正确的波特率，才可以读取机械臂消息或者控制机械臂
-- create_agx_arm_config 创建配置在实例化时可通过channel参数传入激活的can名称，这个名称可以通过`ifconfig`得到
-- **机械臂的mit协议控制单关节电机为高级功能,使用时需注意,此协议的使用不当会导致机械臂损坏！！！**
-
-## 联系我们
-
-您可以在github上提issue
-
-也可以加入discord<https://discord.gg/wrKYTxwDBd>
+- 本仓库为个人开源代码，建议等待官方测试通过后再使用
