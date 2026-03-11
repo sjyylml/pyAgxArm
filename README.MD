@@ -18,6 +18,7 @@ Test:
 |各臂接口函数的详细说明|[docs](./docs)|
 |nero机械臂使用pyAgxArm读取数据|[First-TimeUserGuide(CAN)](./docs/nero/First-TimeUserGuide(CAN).MD)|
 |机械臂DEMO|[demos](./pyAgxArm/demos/DEMO_README(ZH).MD)|
+|Nero力控模块开发文档|[force_ctrl](./docs/nero/Nero力控模块开发文档.md)|
 |CHANGELOG|[CHANGELOG](./CHANGELOG.MD)|
 |Q&A|[Q&A](./docs/Q&A.MD)|
 
@@ -103,6 +104,65 @@ while True:
         print(ja.msg) # list
         print(ja.hz, ja.timestamp)
     time.sleep(0.005)# 200hz
+```
+
+</div>
+</details>
+
+<details open>
+  <summary><h2 style="display:inline">4 Nero 力控模块（重力补偿）</h2></summary>
+  <div>
+
+本模块在 pyAgxArm 原有架构基础上，新增了 Nero 机械臂的 **MIT 阻抗控制** 和 **基于 MuJoCo 逆动力学的实时重力补偿**，支持零重力拖动、位置 PD 控制、柔顺控制等力控场景。
+
+详细的架构设计、API 说明和调试指南请参考：[Nero 力控模块开发文档](./docs/nero/Nero力控模块开发文档.md)
+
+### 额外依赖
+
+```shell
+pip3 install mujoco numpy
+```
+
+### 零重力拖动示例
+
+```python
+from pyAgxArm.protocols.can_protocol.drivers.nero.force_ctrl import (
+    NeroForceController,
+)
+
+with NeroForceController(channel="can0", zero_gravity=True) as ctrl:
+    input("零重力模式，可以拖动机械臂。按 Enter 退出...")
+```
+
+### 位置保持示例
+
+```python
+import numpy as np
+from pyAgxArm.protocols.can_protocol.drivers.nero.force_ctrl import (
+    NeroForceController,
+)
+
+ctrl = NeroForceController(channel="can0", zero_gravity=False)
+ctrl.start()
+
+target = np.array([0.0, 0.3, -0.3, 0.5, 0.0, 0.0, 0.0])
+ctrl.command_joint_pos(target)
+
+input("位置保持中，按 Enter 退出...")
+ctrl.stop()
+```
+
+### Demo 脚本
+
+```bash
+# 零重力模式
+python -m pyAgxArm.demos.nero.force_ctrl_demo --channel can0 --mode zero_gravity
+
+# 位置保持模式
+python -m pyAgxArm.demos.nero.force_ctrl_demo --channel can0 --mode position
+
+# 柔顺模式
+python -m pyAgxArm.demos.nero.force_ctrl_demo --channel can0 --mode compliant
 ```
 
 </div>

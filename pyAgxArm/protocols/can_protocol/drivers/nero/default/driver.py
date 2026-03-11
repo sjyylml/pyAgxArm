@@ -4,7 +4,7 @@ from typing_extensions import Literal
 from .parser import Parser, NeroDefaultDriverAPIOptions, NeroDefaultDriverAPIProtoAdapter
 from ...core.arm_driver_abstract import ArmDriverAbstract
 from ....msgs.core import MessageAbstract
-from ......utiles.numeric_codec import RAD2DEG
+from ......utiles.numeric_codec import RAD2DEG, NumericCodec as nc
 from ......utiles.vaildator import Validator
 from ....msgs.nero.default import (
     ArmMsgModeCtrl,
@@ -632,21 +632,22 @@ class Driver(ArmDriverAbstract):
 
     def set_motion_mode(
         self,
-        motion_mode: Literal['p', 'j'] = 'p'
+        motion_mode: Literal['p', 'j', 'mit'] = 'p'
     ):
         """Set movement mode and MIT mode.
 
         Parameters
         ----------
-        `motion_mode`: Literal['p', 'j']
+        `motion_mode`: Literal['p', 'j', 'mit']
         - `OPTIONS.MOTION_MODE.P`: move p
         - `OPTIONS.MOTION_MODE.J`: move j
+        - `OPTIONS.MOTION_MODE.MIT`: move mit (impedance/torque control)
 
         Raises
         ------
         ValueError
             If `motion_mode` is not in
-            ['p', 'j'].
+            ['p', 'j', 'mit'].
 
         Examples
         --------
@@ -720,6 +721,213 @@ class Driver(ArmDriverAbstract):
         # Set motion mode and send commands
         self.set_motion_mode('j')
         self._send_msgs(msgs)
+
+    # -------------------------- MIT Control --------------------------
+
+    def _validate_and_quantize_mit_params(
+        self,
+        joint_index: int,
+        p_des: float,
+        v_des: float,
+        kp: float,
+        kd: float,
+        t_ff: float,
+    ) -> tuple:
+        """Validate, clamp, and quantize MIT control parameters.
+
+        Returns
+        -------
+        tuple
+            (p_des_uint, v_des_uint, kp_uint, kd_uint, t_ff_uint)
+        """
+        limits = self._config.get(
+            "joint_limits", {}
+        ).get(f"joint{joint_index}", None)
+
+        if limits is not None:
+            lower_limit = limits[0]
+            upper_limit = limits[1]
+        else:
+            lower_limit = -12.5
+            upper_limit = 12.5
+
+        if not Validator.is_within_limit(p_des, lower_limit, upper_limit):
+            print(
+                f"Warning: Desired position {p_des} rad is outside "
+                f"joint {joint_index} limits [{lower_limit}, {upper_limit}] rad. "
+            )
+            p_des = Validator.clamp(p_des, lower_limit, upper_limit)
+
+        if not Validator.is_within_limit(v_des, -45.0, 45.0):
+            print(
+                f"Warning: Desired velocity {v_des} rad/s is outside "
+                f"joint {joint_index} limits [-45.0, 45.0] rad/s. "
+            )
+            v_des = Validator.clamp(v_des, -45.0, 45.0)
+
+        if not Validator.is_within_limit(kp, 0.0, 500.0):
+            print(
+                f"Warning: Proportional gain {kp} is outside "
+                f"joint {joint_index} limits [0.0, 500.0]. "
+            )
+            kp = Validator.clamp(kp, 0.0, 500.0)
+
+        if not Validator.is_within_limit(kd, -5.0, 5.0):
+            print(
+                f"Warning: Derivative gain {kd} is outside "
+                f"joint {joint_index} limits [-5.0, 5.0]. "
+            )
+            kd = Validator.clamp(kd, -5.0, 5.0)
+
+        if not Validator.is_within_limit(t_ff, -24.0, 24.0):
+            print(
+                f"Warning: Feed-forward torque {t_ff} N·m is outside "
+                f"joint {joint_index} limits [-24.0, 24.0]. "
+            )
+            t_ff = Validator.clamp(t_ff, -24.0, 24.0)
+
+        p_des_uint = nc.FloatToUint(p_des, -12.5, 12.5, 16)
+        v_des_uint = nc.FloatToUint(v_des, -45.0, 45.0, 12)
+        kp_uint = nc.FloatToUint(kp, 0.0, 500.0, 12)
+        kd_uint = nc.FloatToUint(kd, -5.0, 5.0, 12)
+        t_ff_uint = nc.FloatToUint(t_ff, -24.0, 24.0, 8)
+
+        return p_des_uint, v_des_uint, kp_uint, kd_uint, t_ff_uint
+
+    def move_mit(
+        self,
+        joint_index: Literal[1, 2, 3, 4, 5, 6, 7],
+        p_des: float = 0.0,
+        v_des: float = 0.0,
+        kp: float = 10.0,
+        kd: float = 0.8,
+        t_ff: float = 0.0,
+    ):
+        """Control a single joint in MIT (impedance/torque) style mode.
+
+        The controller computes a reference torque:
+
+            T_ref = kp * (p_des - p) + kd * (v_des - v) + t_ff
+
+        where `p/v` are the measured joint `position/velocity`.
+
+        Parameters
+        ----------
+        `joint_index`: Literal[1, 2, 3, 4, 5, 6, 7]
+
+        `p_des`: float, optional
+        - Desired position reference (unit: rad). Range: [-12.5, 12.5].
+          Default is 0.0.
+
+        `v_des`: float, optional
+        - Desired velocity reference (unit: rad/s). Range: [-45.0, 45.0].
+          Default is 0.0.
+
+        `kp`: float, optional
+        - Proportional gain. Range: [0.0, 500.0]. Default is 10.0.
+
+        `kd`: float, optional
+        - Derivative gain. Range: [-5.0, 5.0]. Default is 0.8.
+
+        `t_ff`: float, optional
+        - Feed-forward torque reference (unit: N·m). Range: [-24.0, 24.0].
+          Default is 0.0.
+
+        Notes
+        -----
+        - Velocity control: set `kp = 0`, `kd != 0`, command `v_des`.
+        - Torque control: set `kp = 0`, `kd = 0`, command `t_ff`.
+        - Position control: avoid `kd = 0` when `kp != 0` to reduce
+          oscillation risk.
+
+        Examples
+        --------
+        >>> robot.move_mit(joint_index=1, p_des=0.5, kp=10.0, kd=0.8)
+        >>> robot.move_mit(joint_index=1, p_des=0.0, kp=0.0, kd=0.0, t_ff=1.5)
+        """
+        if joint_index not in self._JOINT_INDEX_LIST[:-1]:
+            raise ValueError(
+                f"Joint index should be {self._JOINT_INDEX_LIST[:-1]}")
+
+        p_uint, v_uint, kp_uint, kd_uint, t_uint = (
+            self._validate_and_quantize_mit_params(
+                joint_index, p_des, v_des, kp, kd, t_ff
+            )
+        )
+
+        msg = self._parser._make_joint_mit_ctrl_msg(
+            joint_index=joint_index,
+            p_des=p_uint,
+            v_des=v_uint,
+            kp=kp_uint,
+            kd=kd_uint,
+            t_ff=t_uint,
+        )
+
+        self.set_motion_mode('mit')
+        self._send_msg(msg)
+
+    def move_mit_batch(
+        self,
+        commands: List[dict],
+    ):
+        """Send MIT commands for multiple joints in one batch.
+
+        This avoids re-sending the mode control message for each joint,
+        which is more efficient for high-frequency control loops.
+
+        Parameters
+        ----------
+        `commands`: list[dict]
+            Each dict must have keys:
+            - `joint_index`: int (1~7)
+            - `p_des`: float (rad), default 0.0
+            - `v_des`: float (rad/s), default 0.0
+            - `kp`: float, default 0.0
+            - `kd`: float, default 0.0
+            - `t_ff`: float (N·m), default 0.0
+
+        Examples
+        --------
+        Send MIT commands for all 7 joints:
+        >>> robot.move_mit_batch([
+        ...     {"joint_index": i, "p_des": q[i-1], "kp": 10.0, "kd": 0.8}
+        ...     for i in range(1, 8)
+        ... ])
+        """
+        if not commands:
+            return
+
+        # Set MIT mode once
+        self.set_motion_mode('mit')
+
+        # Send each joint's MIT command
+        for cmd in commands:
+            joint_index = cmd["joint_index"]
+            if joint_index not in self._JOINT_INDEX_LIST[:-1]:
+                raise ValueError(
+                    f"Joint index should be {self._JOINT_INDEX_LIST[:-1]}")
+
+            p_uint, v_uint, kp_uint, kd_uint, t_uint = (
+                self._validate_and_quantize_mit_params(
+                    joint_index,
+                    cmd.get("p_des", 0.0),
+                    cmd.get("v_des", 0.0),
+                    cmd.get("kp", 0.0),
+                    cmd.get("kd", 0.0),
+                    cmd.get("t_ff", 0.0),
+                )
+            )
+
+            msg = self._parser._make_joint_mit_ctrl_msg(
+                joint_index=joint_index,
+                p_des=p_uint,
+                v_des=v_uint,
+                kp=kp_uint,
+                kd=kd_uint,
+                t_ff=t_uint,
+            )
+            self._send_msg(msg)
 
     # -------------------------- Master-Slave --------------------------
 

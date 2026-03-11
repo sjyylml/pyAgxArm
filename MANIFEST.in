@@ -6,3 +6,4 @@ include pyAgxArm/*.sh
 include pyAgxArm/LICENSE
 
 recursive-include pyAgxArm/asserts *
+recursive-include pyAgxArm/robot_models *.urdf *.STL
